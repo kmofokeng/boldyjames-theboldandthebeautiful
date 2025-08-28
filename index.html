@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boldy James - The Bold & The Beautiful</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Inter:wght@400;700&display=swap');
+
+        :root {
+            --bold-color: #1a1a1a;
+            --beautiful-color: #a8724d;
+            --text-light: #f4f4f4;
+            --text-dark: #333333;
+            --background-dark: #0a0a0a;
+            --background-light: #fcf9f5;
+            --accent-green: #2ecc71;
+            --accent-orange: #e67e22;
+            --accent-gold: #c39a6b;
+            --highlight-color: #4B0082; /* Deep Purple */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            scroll-behavior: smooth;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        .oswald-font { font-family: 'Oswald', sans-serif; }
+        .bg-bold-theme { background-color: var(--background-dark); }
+        .bg-beautiful-theme { background-color: var(--background-light); }
+        .text-bold-color { color: var(--bold-color); }
+        .text-beautiful-color { color: var(--beautiful-color); }
+        .hover-lift:hover { transform: translateY(-5px); }
+        
+        .divider {
+            height: 4px;
+            width: 80px;
+        }
+        
+        .scroll-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--accent-gold);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 9999px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 50;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .scroll-to-top.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+        }
+        
+        /* New custom player styles */
+        .track-item {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .track-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        .playing-song {
+            background-color: var(--highlight-color);
+            border-left: 4px solid var(--accent-gold);
+        }
+        
+        /* Custom progress bar */
+        #progress-bar-container {
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+            cursor: pointer;
+        }
+        #progress-bar {
+            height: 100%;
+            background-color: var(--accent-gold);
+            border-radius: 9999px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* Donut Chart Colors (adjusted) */
+        .donut-slice-1 { stroke: var(--accent-gold); stroke-dasharray: 181.8 282.7; }
+        .donut-slice-2 { stroke: var(--accent-orange); stroke-dasharray: 100.9 282.7; stroke-dashoffset: -181.8; }
+
+        /* Bar Chart Colors (adjusted) */
+        .bar-chart-bar-1 { background-color: var(--accent-gold); }
+        .bar-chart-bar-2 { background-color: var(--accent-green); }
+        .bar-chart-bar-3 { background-color: var(--accent-orange); }
+        .bar-chart-bar-4 { background-color: var(--beautiful-color); }
+
+        /* Marketing Ribbon Animation */
+        @keyframes flow-line-draw {
+            from {
+                stroke-dashoffset: 200;
+            }
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .flow-line {
+            stroke-dasharray: 200;
+            stroke-dashoffset: 200;
+            animation: flow-line-draw 3s linear forwards;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+    <div class="min-h-screen bg-bold-theme">
+        
+        <!-- Header Section -->
+        <header class="relative py-32 text-center text-white rounded-b-3xl overflow-hidden">
+            <div class="absolute inset-0 bg-cover bg-center opacity-30" style="background-image: url('https://images.unsplash.com/photo-1542621325-d7f8d67a14c1?q=80&w=2070&auto=format&fit=crop');"></div>
+            <div class="relative z-10 container mx-auto px-6">
+                <h1 class="oswald-font text-6xl md:text-8xl font-bold leading-tight drop-shadow-2xl tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-gray-300 to-gray-500">
+                    THE BOLD & THE BEAUTIFUL
+                </h1>
+                <h2 class="oswald-font text-xl md:text-2xl mt-4 font-normal tracking-wide text-gray-400 drop-shadow-md">
+                    A New Album by Boldy James
+                </h2>
+            </div>
+        </header>
+
+        <!-- Custom Audio Player Section -->
+        <section class="py-12 bg-gray-950 rounded-lg shadow-xl mx-auto container max-w-2xl mt-12 mb-8">
+            <div class="flex flex-col md:flex-row items-center px-6 md:space-x-4">
+                <button id="play-pause-btn" class="text-white text-5xl p-2 rounded-full hover:bg-gray-800 transition-colors">
+                    <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg>
+                </button>
+                <div class="flex-1 w-full md:w-auto mt-4 md:mt-0">
+                    <div class="flex justify-between items-center text-gray-400 text-sm mb-2">
+                        <span id="current-time">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                    <div id="progress-bar-container">
+                        <div id="progress-bar"></div>
+                    </div>
+                    <h4 id="current-track-title" class="text-xl font-medium mt-2 text-white text-center md:text-left">Select a track to play</h4>
+                </div>
+            </div>
+            <!-- The actual, hidden audio element that handles playback -->
+            <audio id="audio-player" class="hidden"></audio>
+        </section>
+
+        <!-- Concept Section -->
+        <section class="py-20 bg-bold-theme">
+            <div class="container mx-auto px-6">
+                <h3 class="oswald-font text-4xl text-center font-bold text-gray-200 mb-4">Album Concept: The Duality of Detroit</h3>
+                <div class="flex justify-center mb-12">
+                    <div class="divider bg-accent-gold rounded-full"></div>
+                </div>
+
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <!-- The Bold Box -->
+                    <div class="bg-gray-900 p-8 rounded-2xl shadow-lg border border-gray-800 flex-1 hover-lift transition-transform duration-300">
+                        <h4 class="oswald-font text-2xl font-bold text-accent-green mb-4">The Bold</h4>
+                        <p class="text-gray-400 mb-4">
+                            This half of the album explores the harsh realities of growing up in Detroit with limited legitimate opportunities. It's a deep dive into the calculated risks, the hustler's mentality, and the street code required for survival.
+                        </p>
+                        <p class="font-bold text-sm text-gray-500">
+                            Themes: Economic Disenfranchisement, Hustle & Grime, Street Mathematics, Loyalty, and Ambition.
+                        </p>
+                    </div>
+
+                    <!-- The Beautiful Box -->
+                    <div class="bg-gray-900 p-8 rounded-2xl shadow-lg border border-gray-800 flex-1 hover-lift transition-transform duration-300">
+                        <h4 class="oswald-font text-2xl font-bold text-accent-gold mb-4">The Beautiful</h4>
+                        <p class="text-gray-400 mb-4">
+                            This half focuses on the journey of transformation. It's a narrative of finding a different path, the spiritual "divine intervention," and the profound shift in perspective that comes with fatherhood and legacy.
+                        </p>
+                        <p class="font-bold text-sm text-gray-500">
+                            Themes: Fatherhood, Legacy, Divine Intervention, Community, and The Price of Peace.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Album Blueprint Section -->
+        <section class="py-20 bg-bold-theme">
+            <div class="container mx-auto px-6">
+                <h3 class="oswald-font text-4xl text-center font-bold text-gray-200 mb-4">Album Blueprint</h3>
+                <div class="flex justify-center mb-12">
+                    <div class="divider bg-beautiful-color rounded-full"></div>
+                </div>
+                <div class="flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-24">
+                    <!-- Donut Chart -->
+                    <div class="relative w-64 h-64 lg:w-80 lg:h-80 bg-gray-900 p-4 rounded-full">
+                        <svg class="w-full h-full donut-chart-svg" viewBox="0 0 260 260">
+                            <circle class="text-gray-700" stroke-width="25" stroke="currentColor" fill="transparent" r="100" cx="130" cy="130"></circle>
+                            <circle class="donut-slice-1" stroke-width="25" stroke="currentColor" fill="transparent" r="100" cx="130" cy="130"></circle>
+                            <circle class="donut-slice-2" stroke-width="25" stroke="currentColor" fill="transparent" r="100" cx="130" cy="130"></circle>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <h4 class="oswald-font text-5xl font-bold text-white">14</h4>
+                            <p class="text-gray-300 text-sm">Total Tracks</p>
+                        </div>
+                    </div>
+                    <!-- Collaborators List -->
+                    <div class="p-6 bg-gray-900 rounded-2xl border border-gray-800 w-full lg:w-auto">
+                        <h4 class="oswald-font text-2xl font-bold text-gray-200 mb-4">Featured Collaborators</h4>
+                        <ul class="space-y-2 text-gray-400">
+                            <li class="flex items-center space-x-2">
+                                <span class="text-accent-gold text-xl">◆</span>
+                                <span><b>Eminem & Bizarre:</b> Bringing a raw, veteran Detroit sound.</span>
+                            </li>
+                            <li class="flex items-center space-x-2">
+                                <span class="text-accent-gold text-xl">◆</span>
+                                <span><b>Freddie Gibbs:</b> A powerful voice on the narrative of the hustle.</span>
+                            </li>
+                            <li class="flex items-center space-x-2">
+                                <span class="text-accent-gold text-xl">◆</span>
+                                <span><b>Benny the Butcher & Westside Gunn:</b> Griselda's gritty street poetry.</span>
+                            </li>
+                            <li class="flex items-center space-x-2">
+                                <span class="text-accent-gold text-xl">◆</span>
+                                <span><b>Nas:</b> A rap legend, business mogul and ventue capitalist who's still the sharpest lyricist around.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tracklist Section -->
+        <section class="py-20 bg-bold-theme text-white">
+            <div class="container mx-auto px-6">
+                <h3 class="oswald-font text-4xl text-center font-bold text-gray-200 mb-4">The Tracklist: A Narrative Arc</h3>
+                <div class="flex justify-center mb-12">
+                    <div class="divider bg-accent-orange rounded-full"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Part 1 List -->
+                    <div class="bg-gray-900 p-8 rounded-2xl border border-gray-800">
+                        <h4 class="oswald-font text-2xl font-bold text-white mb-4">Part 1: The Bold</h4>
+                        <ul id="part-1-tracklist" class="space-y-4 font-light text-gray-300">
+                            <li class="flex flex-col md:flex-row md:items-center md:justify-between py-2 border-b border-gray-700 last:border-b-0 track-item" data-track-name="dollar-menu-dreams" data-title="Dollar Menu Dreams">
+                                <span class="text-white font-medium mb-2 md:mb-0">1. Dollar Menu Dreams</span>
+                            </li>
+                            <li class="flex flex-col md:flex-row md:items-center md:justify-between py-2 border-b border-gray-700 last:border-b-0 track-item" data-track-name="no-option" data-title="No Option">
+                                <span class="text-white font-medium mb-2 md:mb-0">2. No Option</span>
+                            </li>
+                            <li class="flex flex-col md:flex-row md:items-center md:justify-between py-2 border-b border-gray-700 last:border-b-0 track-item" data-track-name="welfare-warfare" data-title="Section 8 Babies (Feat. Eminem & Bizarre)">
+                                <span class="text-white font-medium mb-2 md:mb-0">3. Drug Dilla</span>
+                            </li>
+                            <li class="flex flex-col md:flex-row md:items-center md:justify-between py-2 border-b border-gray-700 last:border-b-0 track-item" data-track-name="drug-dilla" data-title="Drug Dilla">
+                                <span class="text-white font-medium mb-2 md:mb-0">4. Section 8 Babies <span class="text-sm font-normal text-gray-400">(Feat. Eminem & Bizarre)</span></span>
+                            </li>
+                            <li class="flex flex-col md:flex-row md:items-center md:justify-between py-2 border-b border-gray-700 last:border-b-0 track-item" data-track-name="100-toes-down" data-title="100 Toes Down">
+                                <span class="text-white font-medium mb-2 md:mb-0">5. 100 Toes Down</span>
+                            </li>
+                            <li class="flex flex-col md:flex-row md:items-center md:justify-between py-2 border-b border-gray-700 last:border-b-0 track-item" data-track-name="hustlers-math" data-title="Hustler’s Math (Feat. Freddie Gibbs)">
+                                <span class="text-white font-medium mb-2 md:mb-0">6. Hustler’s Math <span class="text-sm font-normal text-gray-400">(Feat. Freddie Gibbs)</span></span>
+                            </li>
+                            <li class="flex flex-col md:flex-row md:items-center md:justify-between py-2 border-b border-gray-700 last:border-b-0 track-item" data-track-name="tar-time-and-a-place" data-title="T.A.R. (Time and a Place)">
+                                <span class="text-white font-medium mb-2 md:mb-0">7. T.A.R. (Time and a Place)</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Part 2 List -->
+                    <div class="bg-gray-900 p-8 rounded-2xl border border-gray-800">
+                        <h4 class="oswald-font text-2xl font-bold text-white mb-4">Part 2: The Beautiful</h4>
+                        <ul id="part-2-tracklist" class="space-y-4 font-light text-gray-300">
+                            <li class="flex flex-col md:flex-row md:items-center md:justify-between py-2 border-b border-gray-700 last:border-b-0 track-item" data-track-name="work-twice-as-hard" data-title="Work Twice As Hard">
+                                <span class="text-white font-medium mb-2 md:mb-0">8. Work Twice As Hard</span>
+                            </li>
+                            <li class="flex flex-col md:flex-row md:items-center md:justify-between py-2 border-b border-gray-700 last:border-b-0 track-item" data-track-name="if-these-bricks-could-talk" data-title="If These Bricks Could Talk (Feat. Benny the Butcher & Westside Gunn)">
+                                <span class="text-white font-medium mb-2 md:mb-0">9. If These Bricks Could Talk <span class="text-sm font-normal text-gray-400">(Feat. Benny the Butcher & Westside Gunn)</span></span>
+                            </li>
+                            <li class="flex flex-col md:flex-row md:items-center md:justify-between py-2 border-b border-gray-700 last:border-b-0 track-item" data-track-name="23-and-1" data-title="23 And 1">
+                                <span class="text-white font-medium mb-2 md:mb-0">10. 23 And 1</span>
+                            </li>
+                            <li class="flex flex-col md:flex-row md:items-center md:justify-between py-2 border-b border-gray-700 last:border-b-0 track-item" data-track-name="got-a-lot-to-lose" data-title="Got A Lot to Lose">
+                                <span class="text-white font-medium mb-2 md:mb-0">11. Got A Lot to Lose</span>
+                            </li>
+                            <li class="flex flex-col md:flex-row md:items-center md:justify-between py-2 border-b border-gray-700 last:border-b-0 track-item" data-track-name="for-the-moment" data-title="For the Moment (Feat. Nas)">
+                                <span class="text-white font-medium mb-2 md:mb-0">12. For the Moment <span class="text-sm font-normal text-gray-400">(Feat. Nas)</span></span>
+                            </li>
+                            <li class="flex flex-col md:flex-row md:items-center md:justify-between py-2 border-b border-gray-700 last:border-b-0 track-item" data-track-name="no-safety-net" data-title="No Safety Net">
+                                <span class="text-white font-medium mb-2 md:mb-0">13. No Safety Net</span>
+                            </li>
+                            <li class="flex flex-col md:flex-row md:items-center md:justify-between py-2 border-b border-gray-700 last:border-b-0 track-item" data-track-name="forever-westside" data-title="Forever Westside">
+                                <span class="text-white font-medium mb-2 md:mb-0">14. Forever Westside</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Marketing Push Section -->
+        <section class="py-20 bg-bold-theme text-white">
+            <div class="container mx-auto px-6">
+                <h3 class="oswald-font text-4xl text-center font-bold text-gray-200 mb-4">Marketing Push: Media Reach</h3>
+                <div class="flex justify-center mb-12">
+                    <div class="divider bg-beautiful-color rounded-full"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <!-- Bar Chart -->
+                    <div class="p-6 bg-gray-900 rounded-2xl border border-gray-800">
+                        <h4 class="oswald-font text-2xl font-bold text-gray-200 mb-4">Media Impressions</h4>
+                        <div class="space-y-6">
+                            <div class="relative h-10 bg-gray-800 rounded-full">
+                                <div class="bar-chart-bar-1 h-full rounded-full transition-all duration-700 ease-out" style="width: 85%;"></div>
+                                <span class="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-white font-medium">Social Media</span>
+                            </div>
+                            <div class="relative h-10 bg-gray-800 rounded-full">
+                                <div class="bar-chart-bar-2 h-full rounded-full transition-all duration-700 ease-out" style="width: 70%;"></div>
+                                <span class="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-white font-medium">Music Blogs & Forums</span>
+                            </div>
+                            <div class="relative h-10 bg-gray-800 rounded-full">
+                                <div class="bar-chart-bar-3 h-full rounded-full transition-all duration-700 ease-out" style="width: 50%;"></div>
+                                <span class="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-white font-medium">Podcast Guest Spots</span>
+                            </div>
+                            <div class="relative h-10 bg-gray-800 rounded-full">
+                                <div class="bar-chart-bar-4 h-full rounded-full transition-all duration-700 ease-out" style="width: 35%;"></div>
+                                <span class="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-white font-medium">Radio Play</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Bar Chart Description -->
+                    <div class="text-gray-400 p-6">
+                        <p class="mb-4">
+                            Our marketing push focuses on a tiered approach, prioritizing digital and community-driven platforms where Boldy's authentic voice resonates most.
+                        </p>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li><b>Social Media:</b> Targeted ads and engaging content on Instagram and TikTok.</li>
+                            <li><b>Blogs & Forums:</b> Securing features on influential hip-hop blogs and Reddit communities.</li>
+                            <li><b>Podcasts:</b> Interviews with popular hip-hop and culture podcasts to reach new, dedicated audiences.</li>
+                            <li><b>Radio Play:</b> Strategic placements on local and satellite radio stations.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rollout Section -->
+        <section class="py-20 bg-bold-theme">
+            <div class="container mx-auto px-6">
+                <h3 class="oswald-font text-4xl text-center font-bold text-gray-200 mb-4">Marketing Rollout: From Streets to Stardom</h3>
+                <div class="flex justify-center mb-12">
+                    <div class="divider bg-accent-gold rounded-full"></div>
+                </div>
+
+                <div class="flex flex-col items-center justify-center relative py-12">
+                    <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <path class="flow-line text-gray-700" d="M50 0 L50 25 M50 25 Q 70 25, 70 45 L70 55 M70 55 Q 70 75, 50 75 L50 100" stroke="currentColor" stroke-width="2" fill="none" />
+                    </svg>
+                    <!-- Phase 1 -->
+                    <div class="flex flex-col md:flex-row items-center justify-center p-6 bg-gray-900 rounded-2xl shadow-lg border border-gray-800 max-w-4xl z-10 hover:shadow-xl transition-shadow duration-300">
+                        <div class="text-6xl text-accent-green mb-4 md:mb-0 md:mr-6">
+                            <span>📅</span>
+                        </div>
+                        <div class="text-center md:text-left">
+                            <h4 class="oswald-font text-2xl font-bold text-accent-gold">Phase 1: The Tease</h4>
+                            <p class="text-sm text-gray-500 mb-3">Build intrigue with a split visual narrative and connect with the community.</p>
+                            <ul class="space-y-1 text-sm text-gray-400 list-disc list-inside">
+                                <li><b>A-B Visuals:</b> Split-screen aesthetic on social media.</li>
+                                <li><b>Street-Level Activations:</b> "Dollar Menu Dreams" food truck tour in Detroit.</li>
+                                <li><b>Limited Drop:</b> Release "The Bold" merch, including a "Hustler's Math" notebook.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Spacer -->
+                    <div class="h-16"></div>
+
+                    <!-- Phase 2 -->
+                    <div class="flex flex-col md:flex-row items-center justify-center p-6 bg-gray-900 rounded-2xl shadow-lg border border-gray-800 max-w-4xl z-10 hover:shadow-xl transition-shadow duration-300">
+                        <div class="text-6xl text-accent-orange mb-4 md:mb-0 md:mr-6">
+                            <span>💿</span>
+                        </div>
+                        <div class="text-center md:text-left">
+                            <h4 class="oswald-font text-2xl font-bold text-accent-gold">Phase 2: The Drop</h4>
+                            <p class="text-sm text-gray-500 mb-3">Drive sales by offering exclusive content and creating a personal connection.</p>
+                            <ul class="space-y-1 text-sm text-gray-400 list-disc list-inside">
+                                <li><b>Themed Events:</b> "No Safety Net" listening party with dual-themed decor.</li>
+                                <li><b>Social Impact:</b> "23 and 1" prison reform livestream.</li>
+                                <li><b>Deluxe Box Set:</b> Release of a limited box set with a digital photo frame.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Spacer -->
+                    <div class="h-16"></div>
+
+                    <!-- Phase 3 -->
+                    <div class="flex flex-col md:flex-row items-center justify-center p-6 bg-gray-900 rounded-2xl shadow-lg border border-gray-800 max-w-4xl z-10 hover:shadow-xl transition-shadow duration-300">
+                        <div class="text-6xl text-accent-green mb-4 md:mb-0 md:mr-6">
+                            <span>🌱</span>
+                        </div>
+                        <div class="text-center md:text-left">
+                            <h4 class="oswald-font text-2xl font-bold text-accent-gold">Phase 3: The Legacy</h4>
+                            <p class="text-sm text-gray-500 mb-3">Maintain momentum by showcasing the album's real-world impact and celebrating the journey.</p>
+                            <ul class="space-y-1 text-sm text-gray-400 list-disc list-inside">
+                                <li><b>Content Series:</b> Launch a "The Beautiful" mini-docuseries on YouTube.</li>
+                                <li><b>Community First:</b> Announce and support a new community initiative, "The New Detroit."</li>
+                                <li><b>Final Merch Drop:</b> Release a "Legacy" collection with a "Father of 10" t-shirt.</li>
+                                <li><b>A Children's Book:</b> "The Boldy Type" that's about boldly choosing beautiful things in life despite environmental challenges.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer with Copyright -->
+        <footer class="py-8 text-center bg-gray-950 text-gray-400">
+            <div class="container mx-auto px-6">
+                <p id="copyright-text"></p>
+            </div>
+        </footer>
+        
+        <!-- Scroll to top button -->
+        <button id="scrollToTopBtn" class="scroll-to-top transition-all duration-300 hover:scale-110">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        // Data containing track information and links
+        const trackData = {
+            "dollar-menu-dreams": {
+                url: "https://www.dropbox.com/scl/fi/fni4gmh68pywvvszbo4mj/1.-Dollar-Menu-Dreams.mp3?rlkey=3umhqrsy9sx136vyyz5xxn8r1&st=f1ikgxnb&raw=1",
+                title: "1. Dollar Menu Dreams"
+            },
+            "no-option": {
+                url: "https://www.dropbox.com/scl/fi/qicj76vjnazxkxoo4zosf/2.-No-Option.mp3?rlkey=5hh36sbcmujjde03pblk509kk&st=9b192uu9&raw=1",
+                title: "2. No Option"
+            },
+            "welfare-warfare": {
+                url: "https://www.dropbox.com/scl/fi/w7p925a0p8sk1zj3gnnr2/3.-Drug-Dilla.mp3?rlkey=gr9vuzhhnxz1nduril913iy9j&st=e9jt1w2y&raw=1",
+                title: "3. Drug Dilla"
+            },
+            "drug-dilla": {
+                url: "https://www.dropbox.com/scl/fi/y7n9y7v2qbt0gcq9vyzhr/4.-Section-8-Babies.mp3?rlkey=gmejw5qlidsc6bh5czhk8is8y&st=f73sf7eb&raw=1",
+                title: "4. Section 8 Babies (Feat. Eminem & Bizarre)"
+            },
+            "100-toes-down": {
+                url: "https://www.dropbox.com/scl/fi/5yhw5gi8ihe54ewq70z9g/5.-100-Toes-Down.mp3?rlkey=hdwh8etnll9goouyb6iu1i6p3&st=s38vnrnz&raw=1",
+                title: "5. 100 Toes Down"
+            },
+            "hustlers-math": {
+                url: "https://www.dropbox.com/scl/fi/o46sp4p6sa2stpivrokt9/6.-Hustler-s-Math.mp3?rlkey=g3wm990ippnetmz23vmry7itr&st=1rt0w51h&raw=1",
+                title: "6. Hustler’s Math (Feat. Freddie Gibbs)"
+            },
+            "tar-time-and-a-place": {
+                url: "https://www.dropbox.com/scl/fi/p0wnhxvuwukl0mt74wyhp/7.-T.A.R.-Time-and-a-Place.mp3?rlkey=imu8pk1wj6uf1h6nlhs5nzt9u&st=bsie1ls1&raw=1",
+                title: "7. T.A.R. (Time and a Place)"
+            },
+            "work-twice-as-hard": {
+                url: "https://www.dropbox.com/scl/fi/8zzbtvakzxw3u2wa7tiaj/8.-Work-Twice-As-Hard.mp3?rlkey=s5j8xjjh1nwpeitehtkukrvic&st=5z4sjal0&raw=1",
+                title: "8. Work Twice As Hard"
+            },
+            "if-these-bricks-could-talk": {
+                url: "https://www.dropbox.com/scl/fi/opbk8uawleakyz4m8az2c/9.-If-These-Bricks-Could-Talk.mp2?rlkey=eze0lz1gn4ls8uyvfw932h2ja&st=3cgs4n6f&raw=1",
+                title: "9. If These Bricks Could Talk (Feat. Benny the Butcher & Westside Gunn)"
+            },
+            "23-and-1": {
+                url: "https://www.dropbox.com/scl/fi/rryg7w55tc8qpabv1de8a/10.-23-And-1.mp3?rlkey=z2akdjyh3rnm503wrq87o4owx&st=5pd6qbzf&raw=1",
+                title: "10. 23 And 1"
+            },
+            "got-a-lot-to-lose": {
+                url: "https://www.dropbox.com/scl/fi/jt2qyyyqx6nc381wvds7k/11.-Got-A-Lot-To-Lose.mp3?rlkey=vi4pyhlo2vjopgjnj5fxry4fa&st=f12kewq9&raw=1",
+                title: "11. Got A Lot to Lose"
+            },
+            "for-the-moment": {
+                url: "https://www.dropbox.com/scl/fi/saa16bjwsu44p0hfc0sfs/12.-For-the-Moment.mp3?rlkey=415aa7l150kafl3mm2ql4d2hi&st=xs4tovdb&raw=1",
+                title: "12. For the Moment (Feat. Nas)"
+            },
+            "no-safety-net": {
+                url: "https://www.dropbox.com/scl/fi/3mnbr4hrjj4tra3u41b6b/13.-No-Safey-Net.mp3?rlkey=p7n7hex0ahna07w3d5hrsz4fp&st=fnl1qjnn&raw=1",
+                title: "13. No Safety Net"
+            },
+            "forever-westside": {
+                url: "https://www.dropbox.com/scl/fi/f4ymfeirnlnqhstt5wx9o/14.-Forever-Westside.mp3?rlkey=76gml15tiyfmsrpfjvv4coxvt&st=q7n1rj6y&raw=1",
+                title: "14. Forever Westside"
+            }
+        };
+
+        // --- DOM Elements ---
+        const audioPlayer = document.getElementById('audio-player');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const progressBarContainer = document.getElementById('progress-bar-container');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationEl = document.getElementById('duration');
+        const currentTrackTitleEl = document.getElementById('current-track-title');
+        const trackItems = document.querySelectorAll('.track-item');
+        let currentPlayingTrack = null;
+
+        // --- Helper Functions ---
+
+        /**
+         * Formats time in seconds to a "m:ss" string.
+         * @param {number} seconds - The time in seconds.
+         * @returns {string} The formatted time string.
+         */
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            const formattedSeconds = remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds;
+            return `${minutes}:${formattedSeconds}`;
+        }
+
+        /**
+         * Updates the UI to reflect the playing state.
+         */
+        function updatePlayState() {
+            if (audioPlayer.paused) {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            } else {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Updates the UI to show the track's progress.
+         */
+        function updateProgressBar() {
+            if (audioPlayer.duration) {
+                const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                progressBar.style.width = `${progress}%`;
+                currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+            }
+        }
+
+        /**
+         * Updates the UI to show the track's total duration.
+         */
+        function updateDuration() {
+            if (audioPlayer.duration) {
+                durationEl.textContent = formatTime(audioPlayer.duration);
+            }
+        }
+
+        /**
+         * Handles the play/pause button click.
+         */
+        function togglePlayPause() {
+            if (audioPlayer.paused) {
+                if (!audioPlayer.src) {
+                    // If no track is loaded, play the first one by default
+                    const firstTrackItem = document.querySelector('.track-item');
+                    if (firstTrackItem) {
+                        const trackName = firstTrackItem.getAttribute('data-track-name');
+                        audioPlayer.src = trackData[trackName].url;
+                        audioPlayer.setAttribute('data-track-name', trackName);
+                        firstTrackItem.classList.add('playing-song');
+                        currentTrackTitleEl.textContent = trackData[trackName].title;
+                    }
+                }
+                audioPlayer.play();
+            } else {
+                audioPlayer.pause();
+            }
+        }
+
+        /**
+         * Handles seeking the audio when the progress bar is clicked.
+         * @param {object} event - The click event object.
+         */
+        function handleProgressBarClick(event) {
+            const containerWidth = progressBarContainer.clientWidth;
+            const clickX = event.offsetX;
+            const seekTime = (clickX / containerWidth) * audioPlayer.duration;
+            audioPlayer.currentTime = seekTime;
+        }
+
+        // --- Event Listeners ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set the dynamic copyright year
+            document.getElementById('copyright-text').innerText = `Copyright © ${new Date().getFullYear()} Perfektionist / Kamohelo Mofokeng`;
+        
+            // Scroll to top button logic
+            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    scrollToTopBtn.classList.add('show');
+                } else {
+                    scrollToTopBtn.classList.remove('show');
+                }
+            });
+            scrollToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Player controls
+            playPauseBtn.addEventListener('click', togglePlayPause);
+            progressBarContainer.addEventListener('click', handleProgressBarClick);
+
+            // Audio player events
+            audioPlayer.addEventListener('play', () => {
+                updatePlayState();
+                const trackName = audioPlayer.getAttribute('data-track-name');
+                trackItems.forEach(item => {
+                    item.classList.remove('playing-song');
+                    if (item.getAttribute('data-track-name') === trackName) {
+                        item.classList.add('playing-song');
+                    }
+                });
+            });
+            audioPlayer.addEventListener('pause', updatePlayState);
+            audioPlayer.addEventListener('timeupdate', updateProgressBar);
+            audioPlayer.addEventListener('loadedmetadata', updateDuration);
+            audioPlayer.addEventListener('ended', () => {
+                trackItems.forEach(item => item.classList.remove('playing-song'));
+                updatePlayState();
+                progressBar.style.width = '0%';
+                currentTimeEl.textContent = '0:00';
+            });
+
+            // Track item click events
+            trackItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const trackName = item.getAttribute('data-track-name');
+                    audioPlayer.src = trackData[trackName].url;
+                    audioPlayer.setAttribute('data-track-name', trackName);
+                    audioPlayer.play();
+                    currentTrackTitleEl.textContent = trackData[trackName].title;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
